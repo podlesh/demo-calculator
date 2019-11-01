@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class PrimeFactorizationTest {
+public class PrimeFactorizationTest {
 
     @ParameterizedTest
     @MethodSource("testCases")

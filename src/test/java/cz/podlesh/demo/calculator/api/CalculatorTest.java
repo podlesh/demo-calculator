@@ -177,6 +177,7 @@ public class CalculatorTest {
         FullOperationResult result;
         try {
             result = invoke.apply(request);
+            assertEquals(expectedStatus, OK, result.toString());
         } catch (HttpClientResponseException e) {
             if (expectedStatus == e.getStatus()) {
                 //OK
@@ -223,7 +224,7 @@ public class CalculatorTest {
                 {"square", true, new String[]{"-12.33"}, OK, "152.0289"},
                 {"x!", true, new String[]{"20"}, OK, "2432902008176640000"},
                 {"fact", true, new String[]{"4"}, OK, "24"},
-                {"x!", true, new String[]{"-1"}, BAD_REQUEST, null},
+                {"x!", true, new String[]{"-1"}, OK, null},
 
                 //division is tricky; for infinite expansion, limited precision is auto-selected
                 {"/", false, new String[]{"12", "10"}, OK, "1.2"},
