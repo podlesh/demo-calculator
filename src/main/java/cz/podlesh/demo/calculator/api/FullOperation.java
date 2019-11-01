@@ -22,7 +22,7 @@ public class FullOperation {
     public String operator;
 
     @JsonProperty
-    @JsonAlias({"args"})
+    @JsonAlias({"args", "arg", "argument"})
     public BigDecimal[] arguments;
 
     /**

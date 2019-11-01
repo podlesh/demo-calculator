@@ -48,7 +48,7 @@ public class PrimeApiTest {
         FactorizationResult result;
         try {
             result = sciCalc.toBlocking()
-                    .retrieve(HttpRequest.POST("/factor", request),
+                    .retrieve(HttpRequest.POST("/prime", request),
                             Argument.of(FactorizationResult.class), Argument.of(ObjectNode.class)
                     );
             assertEquals(expectedStatus, OK);

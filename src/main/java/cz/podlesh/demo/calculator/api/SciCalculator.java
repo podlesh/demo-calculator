@@ -23,7 +23,7 @@ public class SciCalculator  extends AbstractCalculator {
         return CalculatorType.SCIENTIFIC;
     }
 
-    @Post("/factor")
+    @Post("/prime")
     public FactorizationResult factorization(FullOperation request) {
         List<BigDecimal> arguments = request.getArguments();
         if (arguments.isEmpty()) {
@@ -32,7 +32,7 @@ public class SciCalculator  extends AbstractCalculator {
         if (arguments.size()>1) {
             throw new IllegalArgumentException("only one number can be factorized");
         }
-        request.operator = "factor";
+        request.operator = "prime";
         long n;
         try {
             n = arguments.get(0).longValueExact();
