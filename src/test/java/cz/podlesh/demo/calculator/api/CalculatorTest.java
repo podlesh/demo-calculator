@@ -202,6 +202,9 @@ public class CalculatorTest {
                 {"|x|", new String[]{"-12.33"}, OK, "12.33"},
                 {"abs", new String[]{"-12.33"}, OK, "12.33"},
                 {"square", new String[]{"-12.33"}, OK, "152.0289"},
+                {"x!", new String[]{"20"}, OK, "2432902008176640000"},
+                {"fact", new String[]{"4"}, OK, "24"},
+                {"x!", new String[]{"-1"}, BAD_REQUEST, null},
 
                 //division is tricky; for infinite expansion, limited precision is auto-selected
                 {"/", new String[]{"12", "10"}, OK, "1.2"},

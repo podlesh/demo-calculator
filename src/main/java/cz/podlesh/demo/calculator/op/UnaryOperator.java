@@ -4,7 +4,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiFunction;
 
@@ -16,6 +15,18 @@ public enum UnaryOperator implements Operator {
     NEGATE("+/-", BigDecimal::negate),
     ABS("|x|", BigDecimal::abs),
     SQUARE("x^2", (v, mc) -> v.multiply(v, mc)),
+    FACT("x!", (v, mc) -> {
+        if (v.signum() <= 0) {
+            throw new ArithmeticException("factorial is defined only for positive numbers");
+        }
+        final int n;
+        try {
+            n = v.intValueExact();
+        } catch (Exception ignored) {
+            throw new ArithmeticException("factorial is defined only for integers");
+        }
+        return new BigDecimal(Factorial.DEFAULT.apply(n));
+    }),
     ;
 
     private final String symbolicName;
