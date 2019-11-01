@@ -3,6 +3,8 @@ package cz.podlesh.demo.calculator.api;
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 
 import javax.annotation.Nonnull;
 import java.math.BigDecimal;
@@ -23,6 +25,7 @@ public class FullOperation {
 
     @JsonProperty
     @JsonAlias({"args", "arg", "argument"})
+    @JsonSerialize(contentUsing = ToStringSerializer.class)
     public BigDecimal[] arguments;
 
     /**

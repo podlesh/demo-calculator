@@ -67,14 +67,15 @@ curl -s http://localhost:8080/calculator/basic -X POST -H 'Content-Type: applica
 {
   "operator": "+",
   "arguments": [
-    10,
-    12,
-    15,
-    23
+    "10",
+    "12",
+    "15",
+    "23"
   ],
   "result": "60"
 }
 ```
+ 
 ```bash
 curl -s http://localhost:8080/calculator/basic -X POST -H 'Content-Type: application/json' --data-binary '{"operator":"div", "args":[10, 12]}'
 ```
@@ -82,12 +83,13 @@ curl -s http://localhost:8080/calculator/basic -X POST -H 'Content-Type: applica
 {
   "operator": "div",
   "arguments": [
-    10,
-    12
+    "10",
+    "12"
   ],
   "result": "0.8333333333333333"
 }
 ```
+ 
 ```bash
 curl -s http://localhost:8080/calculator/basic -X POST -H 'Content-Type: application/json' --data-binary '{"operator":"/", "args":["30000000000000000000000000000000000000000003", 3]}'
 ```
@@ -95,24 +97,26 @@ curl -s http://localhost:8080/calculator/basic -X POST -H 'Content-Type: applica
 {
   "operator": "/",
   "arguments": [
-    3e+43,
-    3
+    "30000000000000000000000000000000000000000003",
+    "3"
   ],
   "result": "10000000000000000000000000000000000000000001"
 }
 ```
+ 
 ```bash
-curl -s http://localhost:8080/calculator/scientific -X POST -H 'Content-Type: application/json' --data-binary '{"operator":"x!", "args":45}'
+curl -s http://localhost:8080/calculator/scientific -X POST -H 'Content-Type: application/json' --data-binary '{"operator":"x!", "args":65}'
 ```
 ```json
 {
   "operator": "x!",
   "arguments": [
-    45
+    "65"
   ],
-  "result": "119622220865480194561963161495657715064383733760000000000"
+  "result": "8247650592082470666723170306785496252186258551345437492922123134388955774976000000000000000"
 }
 ```
+ 
 ```bash
 curl -s http://localhost:8080/calculator/scientific/prime -X POST -H 'Content-Type: application/json' --data-binary '{"arguments":307.1}'
 ```
@@ -120,9 +124,10 @@ curl -s http://localhost:8080/calculator/scientific/prime -X POST -H 'Content-Ty
 {
   "operator": "prime",
   "arguments": [
-    307.1
+    "307.1"
   ],
   "error": "only integer number can be factorized to primes",
   "prime": false
 }
 ```
+ 
