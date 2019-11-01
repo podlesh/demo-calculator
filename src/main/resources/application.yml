@@ -1,3 +1,6 @@
 micronaut:
   application:
     name: demo-calculator
+  server:
+    netty:
+#      log-level: TRACE
