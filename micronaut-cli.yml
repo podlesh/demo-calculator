@@ -1,5 +1,5 @@
 profile: service
-defaultPackage: demo.calculator
+defaultPackage: cz.podlesh.demo.calculator
 ---
 testFramework: junit
 sourceLanguage: java

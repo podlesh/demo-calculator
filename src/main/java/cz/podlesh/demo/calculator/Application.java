@@ -1,4 +1,4 @@
-package demo.calculator;
+package cz.podlesh.demo.calculator;
 
 import io.micronaut.runtime.Micronaut;
 

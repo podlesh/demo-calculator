@@ -7,7 +7,7 @@ plugins {
 
 
 version "0.1"
-group "demo.calculator"
+group "cz.podlesh.demo.calculator"
 
 repositories {
     mavenCentral()
@@ -40,7 +40,7 @@ dependencies {
 
 test.classpath += configurations.developmentOnly
 
-mainClassName = "demo.calculator.Application"
+mainClassName = "cz.podlesh.demo.calculator.Application"
 // use JUnit 5 platform
 test {
     useJUnitPlatform()
