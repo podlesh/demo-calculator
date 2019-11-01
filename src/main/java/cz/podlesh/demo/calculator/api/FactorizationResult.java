@@ -19,7 +19,7 @@ public class FactorizationResult extends FullOperation {
      * Result: only when the result is not an error.
      * Note that is is <b>always</b> serialized as string; JSON numbers are very, very limited.
      */
-    @JsonSerialize(using = ToStringSerializer.class)
+    @JsonSerialize(contentUsing = ToStringSerializer.class)
     public long[] result;
 
     @JsonProperty()

@@ -179,7 +179,7 @@ public class CalculatorTest {
             result = invoke.apply(request);
             assertEquals(expectedStatus, OK, result.toString());
         } catch (HttpClientResponseException e) {
-            if (expectedStatus == e.getStatus()) {
+            if (expectedStatus == e.getStatus() && expectedStatus != OK) {
                 //OK
                 return null;
             }
