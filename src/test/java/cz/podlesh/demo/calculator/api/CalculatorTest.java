@@ -51,12 +51,15 @@ public class CalculatorTest {
     KnownOperators operators;
 
     @Inject
-    @Client("/calculator")
-    HttpClient client;
+    @Client("/calculator/scientific")
+    HttpClient sciCalc;
+    @Inject
+    @Client("/calculator/basic")
+    HttpClient basicCalc;
 
     @Test
     void testListOperands() {
-        ObjectNode result = client.toBlocking().retrieve(HttpRequest.GET("/"), ObjectNode.class);
+        ObjectNode result = sciCalc.toBlocking().retrieve(HttpRequest.GET("/"), ObjectNode.class);
         System.out.println(result);
         ArrayNode list = (ArrayNode) result.get("operators");
         Assertions.assertNotNull(list);
@@ -78,7 +81,7 @@ public class CalculatorTest {
         FullOperation request = new FullOperation("?", null);
         HttpResponse<ObjectNode> result = null;
         try {
-            result = client.toBlocking()
+            result = sciCalc.toBlocking()
                     .exchange(HttpRequest.POST("/", request),
                             Argument.of(ObjectNode.class), Argument.of(ObjectNode.class)
                     );
@@ -95,7 +98,7 @@ public class CalculatorTest {
     @Test
     void testPlus() {
         FullOperation request = new FullOperation("+", new BigDecimal[]{new BigDecimal(1), new BigDecimal(2)});
-        FullOperationResult result = client.toBlocking()
+        FullOperationResult result = sciCalc.toBlocking()
                 .retrieve(HttpRequest.POST("/", request),
                         Argument.of(FullOperationResult.class), Argument.of(ObjectNode.class)
                 );
@@ -105,16 +108,16 @@ public class CalculatorTest {
 
     @Test
     void testDivideByZero() {
-        FullOperationResult result = testOperation(invokePost("/"), new String[]{"1", "0"}, OK, null);
+        FullOperationResult result = testOperation(invokePost("/", false), new String[]{"1", "0"}, OK, null);
         assertNotNull(result);
         assertNull(result.result);
         assertEquals("Division by zero", result.error);
     }
 
-    private Function<ObjectNode, FullOperationResult> invokePost(String op) {
+    private Function<ObjectNode, FullOperationResult> invokePost(String op, boolean sci) {
         return (request) -> {
             request.put("operator", op);
-            return client.toBlocking()
+            return (sci ? sciCalc : basicCalc).toBlocking()
                     .retrieve(HttpRequest.POST("/", request),
                             Argument.of(FullOperationResult.class), Argument.of(ObjectNode.class)
                     );
@@ -123,21 +126,38 @@ public class CalculatorTest {
 
     @ParameterizedTest
     @MethodSource("testCases")
-    void testOperation(String op, String[] args, HttpStatus expectedStatus, String expectedResult) {
-        testOperation(invokePost(op), args, expectedStatus, expectedResult);
+    void testOperationBasic(String op, boolean sciOnly, String[] args, HttpStatus expectedStatus, String expectedResult) {
+        if (sciOnly)
+            testOperation(invokePost(op, false), args, BAD_REQUEST, null);
+        else
+            testOperation(invokePost(op, false), args, expectedStatus, expectedResult);
     }
 
     @ParameterizedTest
     @MethodSource("testCases")
-    void testOperandInPath(String op, String[] args, HttpStatus expectedStatus, String expectedResult) {
-        String pathName;
-        try {
-            Operator operator = operators.findOperator(op);
-            pathName = operator.getName();
-        } catch (KnownOperators.InvalidOperatorException e) {
-            //ok, ignore this test case - it is already covered by the basic test
-            return;
+    void testOperationSci(String op, boolean sciOnly, String[] args, HttpStatus expectedStatus, String expectedResult) {
+        testOperation(invokePost(op, true), args, expectedStatus, expectedResult);
+    }
+
+    @ParameterizedTest
+    @MethodSource("testCases")
+    void testOperandInPathBasic(String op, boolean sciOnly, String[] args, HttpStatus expectedStatus, String expectedResult) {
+        if (sciOnly) {
+            expectedStatus = NOT_FOUND;
+            expectedResult = null;
         }
+        testOperandInPath(op, sciOnly, args, expectedStatus, expectedResult, basicCalc);
+    }
+
+    @ParameterizedTest
+    @MethodSource("testCases")
+    void testOperandInPathSci(String op, boolean sciOnly, String[] args, HttpStatus expectedStatus, String expectedResult) {
+        testOperandInPath(op, sciOnly, args, expectedStatus, expectedResult, sciCalc);
+    }
+
+    private void testOperandInPath(String op, boolean sciOnly, String[] args, HttpStatus expectedStatus, String expectedResult, HttpClient client) {
+        Operator operator = operators.findOperator(op);
+        String pathName = operator.getName();
 
         Function<ObjectNode, FullOperationResult> invoke = (request) -> client.toBlocking()
                 .retrieve(HttpRequest.POST("/" + pathName, request),
@@ -169,8 +189,7 @@ public class CalculatorTest {
         if (expectedResult == null) {
             assertNotNull(result.error);
             assertNull(result.result);
-        }
-        else {
+        } else {
             assertNull(result.error);
             assertEquals(expectedResult, result.result.toString());
         }
@@ -179,38 +198,38 @@ public class CalculatorTest {
 
     public static Object[][] testCases() {
         return new Object[][]{
-                {"+", new String[]{"1", "2.4", "77"}, OK, "80.4"},
-                {"-", new String[]{"10", "12"}, OK, "-2"},
-                {"*", new String[]{"10", "12"}, OK, "120"},
-                {"/", new String[]{"12", "10"}, OK, "1.2"},
+                {"+", false, new String[]{"1", "2.4", "77"}, OK, "80.4"},
+                {"-", false, new String[]{"10", "12"}, OK, "-2"},
+                {"*", false, new String[]{"10", "12"}, OK, "120"},
+                {"/", false, new String[]{"12", "10"}, OK, "1.2"},
                 //some bad requests
-                {"/", new String[]{"12", "10", "5"}, BAD_REQUEST, null},
-                {"/", new String[]{"12"}, BAD_REQUEST, null},
-                {"+", new String[]{"12"}, BAD_REQUEST, null},
-                {"+", new String[]{}, BAD_REQUEST, null},
-                {"+", null, BAD_REQUEST, null},
+                {"/", false, new String[]{"12", "10", "5"}, BAD_REQUEST, null},
+                {"/", false, new String[]{"12"}, BAD_REQUEST, null},
+                {"+", false, new String[]{"12"}, BAD_REQUEST, null},
+                {"+", false, new String[]{}, BAD_REQUEST, null},
+                {"+", false, null, BAD_REQUEST, null},
                 //division by zero
-                {"/", new String[]{"12", "0"}, OK, null},
+                {"/", false, new String[]{"12", "0"}, OK, null},
                 //test some very big numbers
-                {"+", new String[]{"10000000000000000000000000000000000000000001", "3"}, OK, "10000000000000000000000000000000000000000004"},
-                {"*", new String[]{"10000000000000000000000000000000000000000001", "3"}, OK, "30000000000000000000000000000000000000000003"},
+                {"+", false, new String[]{"10000000000000000000000000000000000000000001", "3"}, OK, "10000000000000000000000000000000000000000004"},
+                {"*", false, new String[]{"10000000000000000000000000000000000000000001", "3"}, OK, "30000000000000000000000000000000000000000003"},
                 //unary operands
-                {"+/-", new String[]{"12", "10"}, BAD_REQUEST, null},
-                {"+/-", new String[]{"12.33"}, OK, "-12.33"},
-                {"NEGATE", new String[]{"12.33"}, OK, "-12.33"},
-                {"|x|", new String[]{"12.33"}, OK, "12.33"},
-                {"|x|", new String[]{"-12.33"}, OK, "12.33"},
-                {"abs", new String[]{"-12.33"}, OK, "12.33"},
-                {"square", new String[]{"-12.33"}, OK, "152.0289"},
-                {"x!", new String[]{"20"}, OK, "2432902008176640000"},
-                {"fact", new String[]{"4"}, OK, "24"},
-                {"x!", new String[]{"-1"}, BAD_REQUEST, null},
+                {"+/-", false, new String[]{"12", "10"}, BAD_REQUEST, null},
+                {"+/-", false, new String[]{"12.33"}, OK, "-12.33"},
+                {"NEGATE", false, new String[]{"12.33"}, OK, "-12.33"},
+                {"|x|", false, new String[]{"12.33"}, OK, "12.33"},
+                {"|x|", false, new String[]{"-12.33"}, OK, "12.33"},
+                {"abs", false, new String[]{"-12.33"}, OK, "12.33"},
+                {"square", true, new String[]{"-12.33"}, OK, "152.0289"},
+                {"x!", true, new String[]{"20"}, OK, "2432902008176640000"},
+                {"fact", true, new String[]{"4"}, OK, "24"},
+                {"x!", true, new String[]{"-1"}, BAD_REQUEST, null},
 
                 //division is tricky; for infinite expansion, limited precision is auto-selected
-                {"/", new String[]{"12", "10"}, OK, "1.2"},
-                {"/", new String[]{"30000000000000000000000000000000000000000003", "3"}, OK, "10000000000000000000000000000000000000000001"},
-                {"/", new String[]{"10", "12"}, OK, "0.8333333333333333"},
-                {"/", new String[]{"10000000000000000000000000000000000000000001", "3"}, OK, "3333333333333333333333333333333333333333333.6666666666666667"},
+                {"/", false, new String[]{"12", "10"}, OK, "1.2"},
+                {"/", false, new String[]{"30000000000000000000000000000000000000000003", "3"}, OK, "10000000000000000000000000000000000000000001"},
+                {"/", false, new String[]{"10", "12"}, OK, "0.8333333333333333"},
+                {"/", false, new String[]{"10000000000000000000000000000000000000000001", "3"}, OK, "3333333333333333333333333333333333333333333.6666666666666667"},
         };
     }
 

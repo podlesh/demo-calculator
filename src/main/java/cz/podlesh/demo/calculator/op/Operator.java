@@ -7,7 +7,7 @@ import java.math.MathContext;
 import java.util.List;
 
 /**
- *
+ * Generic interface of generic operator.
  */
 public interface Operator {
 
@@ -27,6 +27,13 @@ public interface Operator {
      * Usually uppercase.
      */
     String getName();
+
+    /**
+     * Detect category of the operator: is it available in the calculator of given type?
+     */
+    default boolean isAvailableIn(CalculatorType type) {
+        return true;
+    }
 
     /**
      * Number of minimum required arguments.

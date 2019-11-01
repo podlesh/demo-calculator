@@ -12,10 +12,10 @@ import java.util.function.BiFunction;
  */
 public enum UnaryOperator implements Operator {
 
-    NEGATE("+/-", BigDecimal::negate),
-    ABS("|x|", BigDecimal::abs),
-    SQUARE("x^2", (v, mc) -> v.multiply(v, mc)),
-    FACT("x!", (v, mc) -> {
+    NEGATE("+/-", false, BigDecimal::negate),
+    ABS("|x|", false, BigDecimal::abs),
+    SQUARE("x^2", true, (v, mc) -> v.multiply(v, mc)),
+    FACT("x!", true, (v, mc) -> {
         if (v.signum() <= 0) {
             throw new ArithmeticException("factorial is defined only for positive numbers");
         }
@@ -30,13 +30,15 @@ public enum UnaryOperator implements Operator {
     ;
 
     private final String symbolicName;
+    private final boolean scientificOnly;
     /**
      * The operator itself.
      */
     private final BiFunction<BigDecimal, MathContext, BigDecimal> op;
 
-    UnaryOperator(String symbolicName, BiFunction<BigDecimal, MathContext, BigDecimal> op) {
+    UnaryOperator(String symbolicName, boolean scientificOnly, BiFunction<BigDecimal, MathContext, BigDecimal> op) {
         this.symbolicName = symbolicName;
+        this.scientificOnly = scientificOnly;
         this.op = op;
     }
 
@@ -49,6 +51,12 @@ public enum UnaryOperator implements Operator {
     public String getName() {
         return name();
     }
+
+    @Override
+    public boolean isAvailableIn(CalculatorType type) {
+        return !scientificOnly || type == CalculatorType.SCIENTIFIC;
+    }
+
 
     /**
      * Binary operators always need two arguments.
