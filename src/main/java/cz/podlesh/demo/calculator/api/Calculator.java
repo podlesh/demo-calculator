@@ -30,7 +30,7 @@ public class Calculator {
     }
 
     protected MathContext getMathContext() {
-        return MathContext.UNLIMITED;
+        return null;
     }
 
 

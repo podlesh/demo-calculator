@@ -57,6 +57,6 @@ public class FullOperation {
 
     @Override
     public String toString() {
-        return "Operation:" + operator + "/" + Arrays.toString(arguments);
+        return getClass().getSimpleName() + ":" + operator + "/" + Arrays.toString(arguments);
     }
 }

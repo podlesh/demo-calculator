@@ -60,6 +60,9 @@ public enum UnaryOperator implements Operator {
         if (arguments.size() != 1) {
             throw new IllegalArgumentException("invalid argument list: " + this + " is an unary operator");
         }
+        //ensure that we have precision specified
+        mathContext = fixMathContext(mathContext);
+        //and apply the operation
         return op.apply(arguments.get(0), mathContext);
     }
 

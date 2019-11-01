@@ -15,7 +15,15 @@ public enum BinaryOperator implements Operator {
     PLUS("+", true, BigDecimal::add),
     MINUS("-", false, BigDecimal::subtract),
     MUL("*", true, BigDecimal::multiply),
-    DIV("/", false, BigDecimal::divide),
+    DIV("/", false, (a1, a2, mathContext) -> {
+        BigDecimal[] dr = a1.divideAndRemainder(a2, mathContext);
+        if (dr[1].signum() == 0) {
+            //fully divisible
+            return dr[0];
+        }
+        MathContext limitedContext = mathContext.getPrecision() == 0 ? MathContext.DECIMAL64 : mathContext;
+        return dr[0].add(dr[1].divide(a2, limitedContext), mathContext);
+    }),
     ;
 
     private final String symbolicName;
@@ -69,6 +77,9 @@ public enum BinaryOperator implements Operator {
         if (!anyLength && arguments.size() > 2) {
             throw new IllegalArgumentException("invalid argument list: " + this + " needs exactly 2 arguments");
         }
+        //ensure that we have precision specified
+        mathContext = fixMathContext(mathContext);
+
         final Iterator<BigDecimal> it = arguments.iterator();
         BigDecimal result = it.next();
         while (it.hasNext()) {

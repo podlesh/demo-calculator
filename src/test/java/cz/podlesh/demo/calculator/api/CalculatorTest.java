@@ -165,13 +165,14 @@ public class CalculatorTest {
             //this is NOT the expected outcome
             throw e;
         }
+        System.out.println(result);
         if (expectedResult == null) {
             assertNotNull(result.error);
             assertNull(result.result);
         }
         else {
-            assertEquals(expectedResult, result.result.toString());
             assertNull(result.error);
+            assertEquals(expectedResult, result.result.toString());
         }
         return result;
     }
@@ -201,6 +202,12 @@ public class CalculatorTest {
                 {"|x|", new String[]{"-12.33"}, OK, "12.33"},
                 {"abs", new String[]{"-12.33"}, OK, "12.33"},
                 {"square", new String[]{"-12.33"}, OK, "152.0289"},
+
+                //division is tricky; for infinite expansion, limited precision is auto-selected
+                {"/", new String[]{"12", "10"}, OK, "1.2"},
+                {"/", new String[]{"30000000000000000000000000000000000000000003", "3"}, OK, "10000000000000000000000000000000000000000001"},
+                {"/", new String[]{"10", "12"}, OK, "0.8333333333333333"},
+                {"/", new String[]{"10000000000000000000000000000000000000000001", "3"}, OK, "3333333333333333333333333333333333333333333.6666666666666667"},
         };
     }
 

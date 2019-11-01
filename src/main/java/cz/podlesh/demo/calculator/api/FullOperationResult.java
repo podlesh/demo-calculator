@@ -1,5 +1,8 @@
 package cz.podlesh.demo.calculator.api;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+
 import java.math.BigDecimal;
 
 /**
@@ -13,7 +16,9 @@ public class FullOperationResult extends FullOperation {
     public String error;
     /**
      * Result: only when the result is not an error.
+     * Note that is is <b>always</b> serialized as string; JSON numbers are very, very limited.
      */
+    @JsonSerialize(using = ToStringSerializer.class)
     public BigDecimal result;
 
     public FullOperationResult() {
@@ -25,4 +30,8 @@ public class FullOperationResult extends FullOperation {
         this.result = result;
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + " -> " + result + (error == null ? "" : " / " + error);
+    }
 }
