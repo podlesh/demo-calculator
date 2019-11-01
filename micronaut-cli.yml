@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: demo.calculator
+---
+testFramework: junit
+sourceLanguage: java
