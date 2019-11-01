@@ -1,0 +1,14 @@
+*~
+dist/
+.DS_Store
+target/
+.gradle/
+.idea/
+build/
+classes/
+out/
+*.db
+*.log
+*.iml
+*.ipr
+*.iws
