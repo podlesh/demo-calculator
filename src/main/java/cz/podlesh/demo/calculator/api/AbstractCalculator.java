@@ -9,9 +9,11 @@ import io.micronaut.http.annotation.Error;
 import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.PathVariable;
 import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.QueryValue;
 import io.micronaut.http.hateoas.JsonError;
 import io.micronaut.http.hateoas.Link;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -24,8 +26,13 @@ public abstract class AbstractCalculator {
     @Inject
     protected KnownOperators operators;
 
-    protected MathContext getMathContext() {
-        return null;
+    protected MathContext getMathContext(Integer precision) {
+        if (precision == null || precision.intValue() == 0)
+            return null;
+        if (precision < 0) {
+            throw new IllegalArgumentException("negative precision");
+        }
+        return new MathContext(precision);
     }
 
     /**
@@ -46,7 +53,8 @@ public abstract class AbstractCalculator {
     }
 
     @Post("/{opName}")
-    public FullOperationResult request(@PathVariable String opName, FullOperation operation) {
+    public FullOperationResult request(@PathVariable String opName, FullOperation operation,
+                                       @QueryValue("precision") @Nullable Integer precision) {
         Operator operator;
         try {
             operator = operators.findOperator(opName);
@@ -57,21 +65,21 @@ public abstract class AbstractCalculator {
             throw new InvalidOperatorInPathException("operator " + operation.operator + " is not available at this endpoint");
         }
         operation.operator = opName;
-        return doRequest(operation, operator);
+        return doRequest(operation, operator, precision);
     }
 
     @Post("/")
-    public FullOperationResult request(FullOperation operation) {
+    public FullOperationResult request(FullOperation operation, @QueryValue("precision") @Nullable Integer precision) {
         Operator operator = operators.findOperator(operation.operator);
         if (!operator.isAvailableIn(getCalculatorType())) {
             throw new KnownOperators.InvalidOperatorException("operator " + operation.operator + " is not available at this endpoint");
         }
-        return doRequest(operation, operator);
+        return doRequest(operation, operator, precision);
     }
 
-    private FullOperationResult doRequest(FullOperation operation, Operator operator) {
+    private FullOperationResult doRequest(FullOperation operation, Operator operator, @Nullable Integer precision) {
         try {
-            BigDecimal result = operator.apply(operation.getArguments(), getMathContext());
+            BigDecimal result = operator.apply(operation.getArguments(), getMathContext(precision));
             return new FullOperationResult(operation, null, result);
         } catch (ArithmeticException e) {
             //note: this is HTTP success!

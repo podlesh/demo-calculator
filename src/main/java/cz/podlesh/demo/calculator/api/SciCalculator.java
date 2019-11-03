@@ -1,15 +1,11 @@
 package cz.podlesh.demo.calculator.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import cz.podlesh.demo.calculator.op.CalculatorType;
 import cz.podlesh.demo.calculator.op.PrimeFactorization;
 import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
 import io.micronaut.http.annotation.Post;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.List;
 
 /**
