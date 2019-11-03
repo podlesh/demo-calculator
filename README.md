@@ -3,6 +3,8 @@
 Simple REST-like API implemented with Micronaut framework, providing
 some basic arithmetic operation in full precision. 
 
+[![CircleCI](https://circleci.com/gh/podlesh/demo-calculator.svg?style=shield)](https://circleci.com/gh/podlesh/demo-calculator)
+
 # Building and running
 
 JDK version at least 8 is required. 
