@@ -2,6 +2,7 @@ plugins {
     id "net.ltgt.apt-eclipse" version "0.21"
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id "application"
+    id "jacoco"
 }
 
 
@@ -40,6 +41,21 @@ dependencies {
 }
 
 test.classpath += configurations.developmentOnly
+
+jacocoTestReport {
+    reports {
+        html {
+            enabled true
+        }
+    }
+
+    afterEvaluate {
+        classDirectories.from = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['**/Application*'])
+        })
+    }
+}
+test.finalizedBy jacocoTestReport
 
 mainClassName = "cz.podlesh.demo.calculator.Application"
 // use JUnit 5 platform
