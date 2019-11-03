@@ -9,10 +9,6 @@ jobs:
       GRADLE_OPTS: "-Dorg.gradle.daemon=false -Dorg.gradle.workers.max=2"
     docker: # run the steps with Docker
       - image: circleci/openjdk:8-stretch
-      - image: circleci/postgres:12-alpine
-        environment:
-          POSTGRES_USER: postgres
-          POSTGRES_DB: circle_test
     steps: # a collection of executable commands
       - checkout # check out source code to working directory
       # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
