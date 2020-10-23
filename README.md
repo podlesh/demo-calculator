@@ -3,6 +3,8 @@
 Simple REST-like API implemented with Micronaut framework, providing
 some basic arithmetic operation in full precision. 
 
+The functionality is actually quite silly... it was just a task in an interview process, but I have used the opportunity to check the Micronaut framework.
+
 [![CircleCI](https://circleci.com/gh/podlesh/demo-calculator.svg?style=shield)](https://circleci.com/gh/podlesh/demo-calculator)
 
 # Building and running
